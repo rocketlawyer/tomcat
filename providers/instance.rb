@@ -56,8 +56,8 @@ action :configure do
 
     # Don't make a separate home, just link to base
     if new_resource.home != new_resource.base
-      link "#{new_resource.home}" do
-        to "#{new_resource.base}"
+      link new_resource.home do
+        to new_resource.base
       end
     end
 
@@ -121,7 +121,7 @@ action :configure do
   case node['platform_family']
   when 'rhel', 'fedora'
     template "/etc/sysconfig/#{instance}" do
-      source 'sysconfig_tomcat6.erb'
+      source "sysconfig_tomcat#{node['tomcat']['base_version']}.erb"
       variables ({
         :user => new_resource.user,
         :home => new_resource.home,
@@ -256,20 +256,20 @@ action :configure do
     end
   end
 
-  service "#{instance}" do
+  service instance do
     case node['platform_family']
     when 'rhel', 'fedora'
-      service_name "#{instance}"
+      service_name instance
       supports :restart => true, :status => true
     when 'debian'
-      service_name "#{instance}"
+      service_name instance
       supports :restart => true, :reload => false, :status => true
     when 'smartos'
       # SmartOS doesn't support multiple instances
       service_name 'tomcat'
       supports :restart => false, :reload => false, :status => true
     else
-      service_name "#{instance}"
+      service_name instance
     end
     action [:start, :enable]
     notifies :run, "execute[wait for #{instance}]", :immediately

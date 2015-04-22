@@ -86,6 +86,8 @@
              <% if @ssl_port -%>
                redirectPort="<%= @ssl_port %>"
              <% end -%>
+               maxHttpHeaderSize="<%= node['tomcat']["max_http_header_size"] %>"
+               bindOnInit="<%= node['tomcat']['bind_on_init'].to_s %>"
              />
   <% end -%>
     <!-- A "Connector" using the shared thread pool-->
@@ -106,6 +108,8 @@
              <% if @ssl_proxy_port -%>
                proxyPort="<%= @ssl_proxy_port %>"
              <% end -%>
+               maxHttpHeaderSize="<%= node['tomcat']["max_http_header_size"] %>"
+               bindOnInit="<%= node['tomcat']['bind_on_init'].to_s %>"
                keystoreFile="<%= @config_dir %>/<%= @keystore_file %>"
                keystorePass="<%= node['tomcat']['keystore_password'] %>"
                keystoreType="<%= @keystore_type %>"
@@ -118,6 +122,8 @@
     <!-- Define an AJP 1.3 Connector on port <%= @ajp_port %> -->
     <Connector port="<%= @ajp_port %>"
                protocol="AJP/1.3"
+			   packetSize="<%= node['tomcat']["max_packet_size"] %>"
+			   maxThreads="<%= node['tomcat']["max_ajp_threads"] %>"
                tomcatAuthentication="<%= @tomcat_auth %>"
                redirectPort="<%= @ssl_port %>" />
   <% end -%>
@@ -158,7 +164,9 @@
            Note: XML Schema validation will not work with Xerces 2.2.
        -->
       <Host name="localhost"  appBase="webapps"
-            unpackWARs="true" autoDeploy="true"
+            unpackWARs="<%= node['tomcat']['unpack_wars'].to_s %>"
+			autoDeploy="<%= node['tomcat']['auto_deploy'].to_s %>"
+			startStopThreads="<%= node['tomcat']['start_stop_threads'].to_s %>">
             <% if node['tomcat']['base_version'].to_i < 7 -%>
             xmlValidation="false" xmlNamespaceAware="false"
             <% end -%>
@@ -176,6 +184,11 @@
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
         -->
+       <% if node["httpd"]["log_access"] %>
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log." suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+       <% end %>
 
       </Host>
     </Engine>

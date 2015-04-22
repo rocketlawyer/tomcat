@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-default['tomcat']['base_version'] = 6
+default['tomcat']['base_version'] = 7
 default['tomcat']['base_instance'] = "tomcat#{node['tomcat']['base_version']}"
 default['tomcat']['port'] = 8080
 default['tomcat']['proxy_port'] = nil
@@ -25,11 +25,15 @@ default['tomcat']['ssl_proxy_port'] = nil
 default['tomcat']['ajp_port'] = 8009
 default['tomcat']['shutdown_port'] = 8005
 default['tomcat']['catalina_options'] = ''
+default['tomcat']['bind_on_init'] = false
 default['tomcat']['java_options'] = '-Xmx128M -Djava.awt.headless=true'
+default["tomcat"]["max_packet_size"] = 16384
+default['tomcat']['max_http_header_size'] = 65536
 default['tomcat']['use_security_manager'] = false
 default['tomcat']['authbind'] = 'no'
 default['tomcat']['deploy_manager_apps'] = true
 default['tomcat']['max_threads'] = nil
+default["tomcat"]["max_ajp_threads"] = 300
 default['tomcat']['ssl_max_threads'] = 150
 default['tomcat']['ssl_cert_file'] = nil
 default['tomcat']['ssl_key_file'] = nil
@@ -86,6 +90,11 @@ when 'debian'
   default['tomcat']['keytool'] = 'keytool'
   default['tomcat']['lib_dir'] = "#{node["tomcat"]["home"]}/lib"
   default['tomcat']['endorsed_dir'] = "#{node["tomcat"]["lib_dir"]}/endorsed"
+  default['tomcat']['packages'] = [
+    "libtomcat#{node['tomcat']['base_version']}-java",
+    "tomcat#{node['tomcat']['base_version']}-common",
+    "tomcat#{node['tomcat']['base_version']}"
+  ]
 when 'smartos'
   default['tomcat']['user'] = 'tomcat'
   default['tomcat']['group'] = 'tomcat'

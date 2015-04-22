@@ -22,7 +22,7 @@
 
 
 if node['tomcat']['base_version'].to_i == 7
-  if platform_family?('rhel') and node[:platform_version].to_i < 7
+  if platform_family?('rhel') and node['platform_version'].to_i < 7
     include_recipe 'yum-epel'
   end
 end
